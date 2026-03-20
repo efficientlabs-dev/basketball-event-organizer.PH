@@ -20,7 +20,7 @@ export default function Admin() {
   const [newTime, setNewTime] = useState('')
   const [newVenue, setNewVenue] = useState('')
   const [newDuration, setNewDuration] = useState('2 hours')
-  const [newMax, setNewMax] = useState(20)
+  const [newMax, setNewMax] = useState(25)
   const [creating, setCreating] = useState(false)
 
   // Image modal
@@ -141,7 +141,7 @@ export default function Admin() {
   }
 
   function getPrice() {
-    return getTotalPlayers() >= 15 ? 150 : 200
+    return 200
   }
 
   function getPaidCount() {

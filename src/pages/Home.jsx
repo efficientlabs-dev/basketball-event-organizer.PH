@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import gcashQr from '../assets/gcash-qr.jpg'
 
 export default function Home() {
   const [session, setSession] = useState(null)
@@ -61,7 +62,7 @@ export default function Home() {
   }
 
   function getPrice() {
-    return getTotalPlayers() >= 15 ? 150 : 200
+    return 200
   }
 
   function getStatus(signup) {
@@ -187,7 +188,7 @@ export default function Home() {
         </div>
         <div className="price-tag">
           <div className="amount">₱{getPrice()}</div>
-          <div className="per">per head {getTotalPlayers() >= 15 ? '(15+ discount!)' : `(₱150 at 15+ players)`}</div>
+          <div className="per">per head (flat rate)</div>
         </div>
         <div className="roster-count">
           {getTotalPlayers()} / {session.max_players} players signed up
@@ -232,6 +233,16 @@ export default function Home() {
             )}
 
             <div className="divider" />
+
+            <div style={{ textAlign: 'center', marginBottom: 16 }}>
+              <label style={{ display: 'block', marginBottom: 8 }}>Send ₱{getPrice() * (1 + plusOnes)} via GCash</label>
+              <img
+                src={gcashQr}
+                alt="GCash QR Code - Azure Runs"
+                style={{ maxWidth: 220, borderRadius: 12, border: '2px solid var(--border)' }}
+              />
+              <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6 }}>Scan to pay via GCash, then upload screenshot below</div>
+            </div>
 
             <div style={{ marginBottom: 12 }}>
               <label>Payment Proof (GCash Screenshot)</label>
