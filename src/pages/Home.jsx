@@ -73,6 +73,14 @@ export default function Home() {
     return 'pending'
   }
 
+  function getStatusLabel(signup) {
+    const s = getStatus(signup)
+    if (s === 'host') return 'Host'
+    if (s === 'paid') return 'Paid'
+    if (s === 'reserved') return 'Reserved'
+    return 'Pending'
+  }
+
   function handleFileChange(e) {
     const file = e.target.files[0]
     if (!file) return
@@ -135,11 +143,12 @@ export default function Home() {
           <h1>Hoops <span>Session</span></h1>
           <p>Community basketball sessions</p>
         </div>
-        <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>🏀</div>
-          <h2 style={{ fontSize: 20, marginBottom: 8 }}>Setup Required</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.6 }}>
-            Set <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> in your environment variables to connect the database.
+        <div className="card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+          <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.8 }}>🏀</div>
+          <h2 style={{ fontSize: 20, marginBottom: 10, fontWeight: 600 }}>Setup Required</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.7 }}>
+            Set <code style={{ background: 'var(--bg-input)', padding: '2px 8px', borderRadius: 6, fontSize: 13 }}>VITE_SUPABASE_URL</code> and{' '}
+            <code style={{ background: 'var(--bg-input)', padding: '2px 8px', borderRadius: 6, fontSize: 13 }}>VITE_SUPABASE_ANON_KEY</code> in your environment variables.
           </p>
         </div>
       </div>
@@ -152,8 +161,11 @@ export default function Home() {
         <div className="header">
           <h1>Hoops <span>Session</span></h1>
         </div>
-        <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-          Loading...
+        <div className="card">
+          <div className="loading-state">
+            <div className="spinner" />
+            <span>Loading session...</span>
+          </div>
         </div>
       </div>
     )
@@ -167,15 +179,20 @@ export default function Home() {
           <p>Community basketball sessions</p>
         </div>
         <div className="no-session">
-          <h2>No active session</h2>
+          <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.6 }}>🏀</div>
+          <h2>No Active Session</h2>
           <p>Check back later for the next session!</p>
         </div>
-        <div style={{ textAlign: 'center', marginTop: 20 }}>
-          <Link to="/admin" style={{ fontSize: 13, color: 'var(--text-muted)' }}>Admin</Link>
+        <div className="admin-link">
+          <Link to="/admin">Admin</Link>
         </div>
       </div>
     )
   }
+
+  const totalPlayers = getTotalPlayers()
+  const maxPlayers = session.max_players
+  const fillPercent = Math.min((totalPlayers / maxPlayers) * 100, 100)
 
   return (
     <div className="container fade-in">
@@ -184,8 +201,8 @@ export default function Home() {
         <p>Community basketball sessions</p>
       </div>
 
-      {/* Session Info */}
-      <div className="card">
+      {/* Session Info Card */}
+      <div className="card slide-up">
         <div className="session-info">
           <div className="session-info-item">
             <div className="label">Date</div>
@@ -204,19 +221,27 @@ export default function Home() {
             <div className="value">{session.duration}</div>
           </div>
         </div>
+
         <div className="price-tag">
           <div className="amount">₱{getPrice()}</div>
           <div className="per">per head (flat rate)</div>
         </div>
-        <div className="roster-count">
-          {getTotalPlayers()} / {session.max_players} players signed up
+
+        <div className="player-bar">
+          <div className="player-bar-text">
+            <span><strong>{totalPlayers}</strong> signed up</span>
+            <span>{maxPlayers} max</span>
+          </div>
+          <div className="player-bar-track">
+            <div className="player-bar-fill" style={{ width: `${fillPercent}%` }} />
+          </div>
         </div>
       </div>
 
       {/* Sign Up Form */}
       {!submitted ? (
-        <div className="card">
-          <h2 style={{ fontSize: 18, marginBottom: 16 }}>Sign Up</h2>
+        <div className="card slide-up" style={{ animationDelay: '0.1s' }}>
+          <h2 className="section-title">Sign Up</h2>
           <form onSubmit={handleSubmit}>
             <div className="form-row">
               <div className="form-group">
@@ -245,34 +270,33 @@ export default function Home() {
             </div>
 
             {plusOnes > 0 && (
-              <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 12 }}>
+              <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 14, fontWeight: 500 }}>
                 Total: ₱{getPrice() * (1 + plusOnes)} for {1 + plusOnes} people
               </div>
             )}
 
             <div className="divider" />
 
-            <div style={{ textAlign: 'center', marginBottom: 16 }}>
-              <label style={{ display: 'block', marginBottom: 8 }}>Send ₱{getPrice() * (1 + plusOnes)} via GCash</label>
+            <div className="qr-wrapper">
+              <label style={{ marginBottom: 12 }}>Send ₱{getPrice() * (1 + plusOnes)} via GCash</label>
               <img
                 src={gcashQr}
-                alt="GCash QR Code - Azure Runs"
-                style={{ maxWidth: 220, borderRadius: 12, border: '2px solid var(--border)' }}
+                alt="GCash QR Code"
               />
-              <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6 }}>Scan to pay via GCash, then upload screenshot below</div>
+              <div className="qr-label">Scan to pay via GCash, then upload screenshot below</div>
             </div>
 
-            <div style={{ marginBottom: 12 }}>
-              <label>Payment Proof (GCash Screenshot)</label>
+            <div className="form-group">
+              <label>Payment Proof</label>
               <div
                 className={`upload-area ${proofFile ? 'has-file' : ''}`}
                 onClick={() => document.getElementById('proof-input').click()}
               >
                 {proofPreview ? (
-                  <img src={proofPreview} alt="Proof" style={{ maxWidth: 120, borderRadius: 6 }} />
+                  <img src={proofPreview} alt="Proof" style={{ maxWidth: 120, borderRadius: 8 }} />
                 ) : (
                   <div>
-                    <div style={{ fontSize: 24, marginBottom: 4 }}>📷</div>
+                    <div style={{ fontSize: 22, marginBottom: 6, opacity: 0.5 }}>📷</div>
                     <div style={{ color: 'var(--text-muted)', fontSize: 14 }}>Tap to upload GCash screenshot</div>
                   </div>
                 )}
@@ -311,13 +335,12 @@ export default function Home() {
           </form>
         </div>
       ) : (
-        <div className="card" style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>✅</div>
-          <h2 style={{ fontSize: 18, marginBottom: 4 }}>You're in!</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>See you on the court!</p>
+        <div className="card slide-up" style={{ textAlign: 'center', padding: '40px 24px' }}>
+          <div className="success-icon">✓</div>
+          <h2 style={{ fontSize: 20, marginBottom: 6, fontWeight: 700 }}>You're In!</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: 14, marginBottom: 20 }}>See you on the court!</p>
           <button
             className="btn btn-secondary btn-sm"
-            style={{ marginTop: 12 }}
             onClick={() => setSubmitted(false)}
           >
             Sign up another player
@@ -326,16 +349,34 @@ export default function Home() {
       )}
 
       {/* Live Roster */}
-      <div className="card">
-        <h2 style={{ fontSize: 18, marginBottom: 12 }}>Roster</h2>
+      <div className="card slide-up" style={{ animationDelay: '0.2s' }}>
+        <h2 className="section-title">Roster</h2>
         {signups.length === 0 ? (
           <div className="roster-count">No sign-ups yet. Be the first!</div>
         ) : (
-          signups.map(s => (
+          signups.map((s, i) => (
             <div key={s.id} className="roster-item">
-              <div>
-                <span className="roster-name">{s.name}</span>
-                {s.plus_ones > 0 && <span className="roster-plus">+{s.plus_ones}</span>}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  background: s.is_organizer ? 'var(--accent-soft)' : 'var(--bg-input)',
+                  border: `1px solid ${s.is_organizer ? 'rgba(232,93,38,0.3)' : 'var(--border)'}`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  color: s.is_organizer ? 'var(--accent)' : 'var(--text-muted)',
+                  flexShrink: 0,
+                }}>
+                  {i + 1}
+                </span>
+                <div>
+                  <span className="roster-name">{s.name}</span>
+                  {s.plus_ones > 0 && <span className="roster-plus">+{s.plus_ones}</span>}
+                </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 {s.proof_url && (
@@ -347,7 +388,7 @@ export default function Home() {
                   />
                 )}
                 <span className={`badge badge-${getStatus(s)}`}>
-                  {getStatus(s)}
+                  {getStatusLabel(s)}
                 </span>
               </div>
             </div>
@@ -355,8 +396,8 @@ export default function Home() {
         )}
       </div>
 
-      <div style={{ textAlign: 'center', marginTop: 8, paddingBottom: 20 }}>
-        <Link to="/admin" style={{ fontSize: 13, color: 'var(--text-muted)' }}>Admin</Link>
+      <div className="admin-link">
+        <Link to="/admin">Admin</Link>
       </div>
 
       {/* Image Modal */}

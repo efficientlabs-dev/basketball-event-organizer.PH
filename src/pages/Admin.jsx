@@ -22,6 +22,8 @@ export default function Admin() {
   const [newDuration, setNewDuration] = useState('2 hours')
   const [newMax, setNewMax] = useState(25)
   const [creating, setCreating] = useState(false)
+  const [formError, setFormError] = useState('')
+  const [formSuccess, setFormSuccess] = useState('')
 
   // Image modal
   const [modalImage, setModalImage] = useState(null)
@@ -75,47 +77,75 @@ export default function Admin() {
 
   async function createSession(e) {
     e.preventDefault()
+    setFormError('')
+    setFormSuccess('')
     setCreating(true)
 
-    // Close any open sessions first
-    await supabase
-      .from('sessions')
-      .update({ status: 'closed' })
-      .eq('status', 'open')
+    try {
+      // Close any open sessions first
+      const { error: closeError } = await supabase
+        .from('sessions')
+        .update({ status: 'closed' })
+        .eq('status', 'open')
 
-    // Create new session
-    const { data: newSession, error } = await supabase
-      .from('sessions')
-      .insert({
-        date: newDate,
-        time_slot: newTime,
-        duration: newDuration,
-        venue: newVenue,
-        max_players: newMax,
-        status: 'open',
-      })
-      .select()
-      .single()
+      if (closeError) {
+        console.error('Error closing sessions:', closeError)
+      }
 
-    if (!error && newSession) {
-      // Auto-add Neo as HOST
-      await supabase.from('signups').insert({
-        session_id: newSession.id,
-        name: 'Neo',
-        plus_ones: 0,
-        paid: true,
-        pay_later: false,
-        is_organizer: true,
-      })
+      // Create new session
+      const { data: newSession, error } = await supabase
+        .from('sessions')
+        .insert({
+          date: newDate,
+          time_slot: newTime,
+          duration: newDuration,
+          venue: newVenue,
+          max_players: newMax,
+          status: 'open',
+        })
+        .select()
+        .single()
 
-      setNewDate('')
-      setNewTime('')
-      setNewVenue('')
-      setNewDuration('2 hours')
-      setNewMax(20)
-      await fetchSessions()
-      setActiveSession(newSession)
-      setTab('session')
+      if (error) {
+        console.error('Error creating session:', error)
+        setFormError(error.message || 'Failed to create session. Check your database connection and RLS policies.')
+        setCreating(false)
+        return
+      }
+
+      if (newSession) {
+        // Auto-add Neo as HOST
+        const { error: signupError } = await supabase.from('signups').insert({
+          session_id: newSession.id,
+          name: 'Neo',
+          plus_ones: 0,
+          paid: true,
+          pay_later: false,
+          is_organizer: true,
+        })
+
+        if (signupError) {
+          console.error('Error adding host:', signupError)
+        }
+
+        setNewDate('')
+        setNewTime('')
+        setNewVenue('')
+        setNewDuration('2 hours')
+        setNewMax(25)
+        setFormSuccess('Session created successfully!')
+        await fetchSessions()
+        setActiveSession(newSession)
+
+        // Switch to session tab after brief delay
+        setTimeout(() => {
+          setTab('session')
+          setFormSuccess('')
+        }, 1000)
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setFormError('An unexpected error occurred. Please try again.')
     }
     setCreating(false)
   }
@@ -160,6 +190,14 @@ export default function Admin() {
     return 'pending'
   }
 
+  function getStatusLabel(signup) {
+    const s = getStatus(signup)
+    if (s === 'host') return 'Host'
+    if (s === 'paid') return 'Paid'
+    if (s === 'reserved') return 'Reserved'
+    return 'Pending'
+  }
+
   function formatDate(dateStr) {
     return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', {
       weekday: 'short',
@@ -174,12 +212,14 @@ export default function Admin() {
         <div className="header">
           <h1>Admin <span>Dashboard</span></h1>
         </div>
-        <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-          <h2 style={{ fontSize: 20, marginBottom: 8 }}>Setup Required</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.6 }}>
-            Set <code>VITE_SUPABASE_URL</code>, <code>VITE_SUPABASE_ANON_KEY</code>, and <code>VITE_ADMIN_PIN</code> in your environment variables.
+        <div className="card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+          <h2 style={{ fontSize: 20, marginBottom: 10, fontWeight: 600 }}>Setup Required</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.7 }}>
+            Set <code style={{ background: 'var(--bg-input)', padding: '2px 8px', borderRadius: 6, fontSize: 13 }}>VITE_SUPABASE_URL</code>,{' '}
+            <code style={{ background: 'var(--bg-input)', padding: '2px 8px', borderRadius: 6, fontSize: 13 }}>VITE_SUPABASE_ANON_KEY</code>, and{' '}
+            <code style={{ background: 'var(--bg-input)', padding: '2px 8px', borderRadius: 6, fontSize: 13 }}>VITE_ADMIN_PIN</code> in your environment variables.
           </p>
-          <div style={{ marginTop: 20 }}>
+          <div style={{ marginTop: 24 }}>
             <Link to="/" style={{ fontSize: 13, color: 'var(--text-muted)' }}>← Back</Link>
           </div>
         </div>
@@ -190,23 +230,24 @@ export default function Admin() {
   if (!authenticated) {
     return (
       <div className="pin-overlay">
-        <div className="pin-box">
+        <div className="pin-box fade-in">
           <h2>Admin Access</h2>
+          <p className="pin-subtitle">Enter your PIN to continue</p>
           <form onSubmit={handlePinSubmit}>
             <input
               className="input"
               type="password"
-              placeholder="Enter PIN"
+              placeholder="• • • •"
               value={pin}
               onChange={e => setPin(e.target.value)}
               autoFocus
             />
             <button type="submit" className="btn btn-primary btn-block">
-              Enter
+              Unlock
             </button>
             {pinError && <div className="pin-error">{pinError}</div>}
           </form>
-          <div style={{ marginTop: 20 }}>
+          <div style={{ marginTop: 24 }}>
             <Link to="/" style={{ fontSize: 13, color: 'var(--text-muted)' }}>← Back to sign up</Link>
           </div>
         </div>
@@ -224,7 +265,7 @@ export default function Admin() {
       {/* Tabs */}
       <div className="tab-bar">
         <button className={`tab ${tab === 'session' ? 'active' : ''}`} onClick={() => setTab('session')}>
-          Current Session
+          Current
         </button>
         <button className={`tab ${tab === 'new' ? 'active' : ''}`} onClick={() => setTab('new')}>
           New Session
@@ -239,9 +280,10 @@ export default function Admin() {
         <div className="fade-in">
           {!activeSession || activeSession.status !== 'open' ? (
             <div className="no-session">
-              <h2>No active session</h2>
+              <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.5 }}>🏀</div>
+              <h2>No Active Session</h2>
               <p>Create a new session to get started.</p>
-              <button className="btn btn-primary" style={{ marginTop: 16 }} onClick={() => setTab('new')}>
+              <button className="btn btn-primary" style={{ marginTop: 20 }} onClick={() => setTab('new')}>
                 Create Session
               </button>
             </div>
@@ -287,7 +329,7 @@ export default function Admin() {
 
               {/* Roster Management */}
               <div className="card">
-                <h2 style={{ fontSize: 18, marginBottom: 12 }}>Manage Roster</h2>
+                <h2 className="section-title">Manage Roster</h2>
                 {signups.length === 0 ? (
                   <div className="roster-count">No sign-ups yet.</div>
                 ) : (
@@ -296,8 +338,8 @@ export default function Admin() {
                       <div>
                         <span className="roster-name">{s.name}</span>
                         {s.plus_ones > 0 && <span className="roster-plus">+{s.plus_ones}</span>}
-                        <div style={{ marginTop: 4 }}>
-                          <span className={`badge badge-${getStatus(s)}`}>{getStatus(s)}</span>
+                        <div style={{ marginTop: 6 }}>
+                          <span className={`badge badge-${getStatus(s)}`}>{getStatusLabel(s)}</span>
                         </div>
                       </div>
                       <div className="admin-roster-actions">
@@ -326,7 +368,7 @@ export default function Admin() {
               </div>
 
               {/* Close Session */}
-              <button className="btn btn-danger btn-block" onClick={closeSession}>
+              <button className="btn btn-danger btn-block" onClick={closeSession} style={{ marginTop: 4 }}>
                 Close Session
               </button>
             </>
@@ -337,10 +379,18 @@ export default function Admin() {
       {/* New Session Tab */}
       {tab === 'new' && (
         <div className="card fade-in">
-          <h2 style={{ fontSize: 18, marginBottom: 16 }}>Create New Session</h2>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
+          <h2 className="section-title">Create New Session</h2>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
             Creating a new session will close the current open session.
           </p>
+
+          {formError && (
+            <div className="toast toast-error">{formError}</div>
+          )}
+          {formSuccess && (
+            <div className="toast toast-success">{formSuccess}</div>
+          )}
+
           <form onSubmit={createSession}>
             <div className="form-row">
               <div className="form-group">
@@ -418,20 +468,21 @@ export default function Admin() {
         <div className="fade-in">
           {sessions.length === 0 ? (
             <div className="no-session">
-              <h2>No sessions yet</h2>
+              <h2>No Sessions Yet</h2>
+              <p>Create your first session to get started.</p>
             </div>
           ) : (
             sessions.map(s => (
               <div
                 key={s.id}
-                className="card"
-                style={{ cursor: 'pointer', opacity: s.status === 'open' ? 1 : 0.7 }}
+                className="card history-card"
+                style={{ opacity: s.status === 'open' ? 1 : 0.75 }}
                 onClick={() => { setActiveSession(s); setTab('session') }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontWeight: 600 }}>{formatDate(s.date)}</div>
-                    <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>{s.venue} · {s.time_slot}</div>
+                    <div style={{ fontWeight: 700, fontSize: 15 }}>{formatDate(s.date)}</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>{s.venue} · {s.time_slot}</div>
                   </div>
                   <span className={`badge ${s.status === 'open' ? 'badge-paid' : s.status === 'completed' ? 'badge-host' : 'badge-pending'}`}>
                     {s.status}
