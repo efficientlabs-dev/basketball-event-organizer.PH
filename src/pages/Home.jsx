@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { supabase, supabaseConfigured } from '../lib/supabase'
 import gcashQr from '../assets/gcash-qr.jpg'
 
 export default function Home() {
@@ -126,6 +126,24 @@ export default function Home() {
       month: 'long',
       day: 'numeric',
     })
+  }
+
+  if (!supabaseConfigured) {
+    return (
+      <div className="container">
+        <div className="header">
+          <h1>Hoops <span>Session</span></h1>
+          <p>Community basketball sessions</p>
+        </div>
+        <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>🏀</div>
+          <h2 style={{ fontSize: 20, marginBottom: 8 }}>Setup Required</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.6 }}>
+            Set <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code> in your environment variables to connect the database.
+          </p>
+        </div>
+      </div>
+    )
   }
 
   if (loading) {

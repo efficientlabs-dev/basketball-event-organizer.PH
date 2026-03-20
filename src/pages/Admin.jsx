@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { supabase, supabaseConfigured } from '../lib/supabase'
 
 const ADMIN_PIN = import.meta.env.VITE_ADMIN_PIN
 
@@ -166,6 +166,25 @@ export default function Admin() {
       month: 'short',
       day: 'numeric',
     })
+  }
+
+  if (!supabaseConfigured) {
+    return (
+      <div className="container">
+        <div className="header">
+          <h1>Admin <span>Dashboard</span></h1>
+        </div>
+        <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
+          <h2 style={{ fontSize: 20, marginBottom: 8 }}>Setup Required</h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.6 }}>
+            Set <code>VITE_SUPABASE_URL</code>, <code>VITE_SUPABASE_ANON_KEY</code>, and <code>VITE_ADMIN_PIN</code> in your environment variables.
+          </p>
+          <div style={{ marginTop: 20 }}>
+            <Link to="/" style={{ fontSize: 13, color: 'var(--text-muted)' }}>← Back</Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (!authenticated) {
