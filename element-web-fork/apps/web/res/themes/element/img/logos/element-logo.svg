@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="phantomzGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B7CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6A5ACD;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Ghost body -->
+  <path d="M256 48c-97 0-176 72-176 160v200c0 8 10 12 16 6l40-40c6-6 16-6 22 0l30 30c6 6 16 6 22 0l30-30c6-6 16-6 22 0l30 30c6 6 16 6 22 0l30-30c6-6 16-6 22 0l40 40c6 6 16 2 16-6V208c0-88-79-160-176-160z"
+        fill="url(#phantomzGrad)" filter="url(#glow)"/>
+  <!-- Left eye -->
+  <ellipse cx="200" cy="220" rx="28" ry="34" fill="#0A0A0A"/>
+  <ellipse cx="208" cy="212" rx="10" ry="12" fill="#E8E8E8"/>
+  <!-- Right eye -->
+  <ellipse cx="312" cy="220" rx="28" ry="34" fill="#0A0A0A"/>
+  <ellipse cx="320" cy="212" rx="10" ry="12" fill="#E8E8E8"/>
+  <!-- Subtle mouth -->
+  <path d="M220 280 Q256 300 292 280" stroke="#0A0A0A" stroke-width="4" fill="none" stroke-linecap="round"/>
+</svg>

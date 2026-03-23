@@ -1,0 +1,100 @@
+<style type="text/css">
+    .mx_Parent {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 40px 35px;
+        background: #0A0A0A;
+        min-height: 100%;
+    }
+
+    .mx_Logo {
+        height: 80px;
+        margin-bottom: 16px;
+        filter: drop-shadow(0 0 20px rgba(123, 104, 238, 0.3));
+    }
+
+    .mx_Header_title {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 16px 0 0;
+        color: #E8E8E8;
+    }
+
+    .mx_Header_title::after {
+        content: "";
+    }
+
+    .mx_Header_subtitle {
+        font-size: 14px;
+        font-weight: normal;
+        margin: 8px 0 0;
+        color: #808080;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .mx_ButtonGroup {
+        margin-top: 32px;
+    }
+
+    .mx_ButtonRow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 12px 0 0;
+    }
+
+    .mx_ButtonRow > * {
+        margin: 0 10px;
+    }
+
+    .mx_ButtonParent {
+        display: flex;
+        padding: 12px 32px;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.2s ease;
+    }
+
+    .mx_ButtonSignIn {
+        background-color: #7B68EE;
+        color: white !important;
+    }
+
+    .mx_ButtonSignIn:hover {
+        background-color: #6A5ACD;
+    }
+
+    .mx_WelcomePage:not(.mx_WelcomePage_loggedIn) .mx_WelcomePage_guestFunctions {
+        display: none;
+    }
+
+    @media only screen and (max-width: 480px) {
+        .mx_ButtonRow {
+            flex-direction: column;
+        }
+        .mx_ButtonRow > * {
+            margin: 0 0 10px 0;
+        }
+    }
+</style>
+
+<div class="mx_Parent">
+    <img src="$logoUrl" alt="$brand" class="mx_Logo" />
+    <h1 class="mx_Header_title">$brand</h1>
+    <h2 class="mx_Header_subtitle">Sovereign. Encrypted. Free.</h2>
+    <div class="mx_ButtonGroup">
+        <div class="mx_ButtonRow">
+            <a href="#/login" class="mx_ButtonParent mx_ButtonSignIn">
+                Sign In
+            </a>
+        </div>
+    </div>
+</div>

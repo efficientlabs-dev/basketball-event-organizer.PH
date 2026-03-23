@@ -1,0 +1,78 @@
+/* Phantomz Network Global Overrides */
+
+/* Accent color */
+:root {
+    --cpd-color-text-action-accent: #7B68EE !important;
+    --cpd-color-bg-action-primary-rest: #7B68EE !important;
+    --cpd-color-bg-action-primary-hovered: #6A5ACD !important;
+    --cpd-color-bg-action-primary-pressed: #5B4FCF !important;
+}
+
+/* Hide Element/Matrix branding */
+.mx_AuthPage_footer,
+.mx_AuthFooter a[href*="element.io"],
+.mx_AuthFooter a[href*="matrix.org"] {
+    display: none !important;
+}
+
+/* Hide server picker */
+.mx_ServerPicker,
+.mx_AuthBody_serverPicker {
+    display: none !important;
+}
+
+/* Hide email/phone fields in registration */
+.mx_AuthBody_fieldRow:has(input[type="email"]),
+.mx_AuthBody_fieldRow:has(input[type="tel"]) {
+    display: none !important;
+}
+
+/* Hide "Add email" nag screens */
+.mx_SetupEncryptionBody_emailPrompt {
+    display: none !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0A0A0A;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #7B68EE;
+}
+
+/* Room list refinements */
+.mx_LeftPanel {
+    background: #0A0A0A !important;
+}
+
+/* Message input area */
+.mx_MessageComposer {
+    background: #111111 !important;
+}
+
+/* Hide "Explore rooms" in some contexts */
+.mx_RoomListHeader_contextMenuButton[aria-label="Explore rooms"] {
+    display: none !important;
+}
+
+/* Hide integration manager prompts */
+.mx_ScalarAuthClient,
+.mx_IntegrationManager {
+    display: none !important;
+}
+
+/* Hide feedback/rageshake */
+.mx_FeedbackDialog,
+.mx_BugReportDialog {
+    display: none !important;
+}

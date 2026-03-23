@@ -23,3 +23,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Build outputs
+element-web-fork/node_modules/
+element-web-fork/.pnp/
+element-web-fork/apps/web/webapp/
