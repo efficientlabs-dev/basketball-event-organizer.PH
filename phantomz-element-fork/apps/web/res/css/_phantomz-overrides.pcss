@@ -1,0 +1,95 @@
+/* Phantomz Network Global Overrides */
+
+/* Accent color overrides */
+:root {
+    --cpd-color-text-action-accent: #7B68EE !important;
+    --cpd-color-bg-action-primary-rest: #7B68EE !important;
+    --cpd-color-bg-action-primary-hovered: #6A5ACD !important;
+    --cpd-color-bg-action-primary-pressed: #5B4FCF !important;
+    --cpd-color-icon-accent-tertiary: #7B68EE !important;
+}
+
+/* Hide Element/Matrix branding in auth footer */
+.mx_AuthPage_footer,
+.mx_AuthFooter {
+    display: none !important;
+}
+
+/* Hide server picker */
+.mx_ServerPicker,
+.mx_AuthBody_serverPicker {
+    display: none !important;
+}
+
+/* Hide email/phone fields in registration */
+.mx_AuthBody_fieldRow:has(input[type="email"]),
+.mx_AuthBody_fieldRow:has(input[type="tel"]) {
+    display: none !important;
+}
+
+/* Hide "Add email" nag screens */
+.mx_SetupEncryptionBody_emailPrompt,
+[class*="emailPrompt"],
+[class*="phonePrompt"] {
+    display: none !important;
+}
+
+/* Hide links to element.io and matrix.org */
+a[href*="element.io"],
+a[href*="matrix.org"]:not([href*="/_matrix/"]) {
+    display: none !important;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0A0A0A;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #7B68EE;
+}
+
+/* Room list / left panel */
+.mx_LeftPanel {
+    background: #0A0A0A !important;
+}
+
+/* Message composer */
+.mx_MessageComposer {
+    background: #111111 !important;
+}
+
+/* Hide "Explore rooms" public directory */
+.mx_RoomListHeader_contextMenuButton[aria-label="Explore rooms"],
+[data-testid="explore-rooms-button"] {
+    display: none !important;
+}
+
+/* Hide integration manager prompts */
+.mx_ScalarAuthClient,
+[class*="IntegrationManager"] {
+    display: none !important;
+}
+
+/* Hide rageshake/feedback */
+[class*="Rageshake"],
+[class*="rageshake"],
+[class*="BugReport"],
+[class*="FeedbackDialog"] {
+    display: none !important;
+}
+
+/* Hide "Powered by Matrix" text */
+[class*="powered_by_matrix"],
+.mx_AuthFooter a[href*="matrix.org"] {
+    display: none !important;
+}
